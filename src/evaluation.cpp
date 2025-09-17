@@ -72,30 +72,33 @@ Value Var::eval(Assoc &e) { // evaluation of variable
     Value matched_value = find(x, e);
     if (matched_value.get() == nullptr) {
         if (primitives.count(x)) {
-            Expr exp = nullptr;
-            switch (primitives[x]) {
-                case E_PLUS: { exp = (new Plus(new Var("parm1"), new Var("parm2"))); break; }
-                case E_MODULO: { exp = (new Modulo(new Var("parm1"), new Var("parm2"))); break; }
-                case E_VOID: { exp = (new MakeVoid()); break; }
-                case E_EQQ: { exp = (new IsEq(new Var("parm1"), new Var("parm2"))); break; }
-                case E_BOOLQ: { exp = (new IsBoolean(new Var("parm"))); break; }
-                case E_INTQ: { exp = (new IsFixnum(new Var("parm"))); break; }
-                case E_NULLQ: { exp = (new IsNull(new Var("parm"))); break; }
-                case E_PAIRQ: { exp = (new IsPair(new Var("parm"))); break; }
-                case E_PROCQ: { exp = (new IsProcedure(new Var("parm"))); break; }
-                case E_SYMBOLQ: { exp = (new IsSymbol(new Var("parm"))); break; }
-                case E_STRINGQ: { exp = (new IsString(new Var("parm"))); break; }
-                case E_EXPT: { exp = (new Expt(new Var("parm1"), new Var("parm2"))); break; }
-                case E_DISPLAY: { exp = (new Display(new Var("parm"))); break; }
-                case E_EXIT: { exp = (new Exit()); break; }
+             static std::map<ExprType, std::pair<Expr, std::vector<std::string>>> primitive_map = {
+                    {E_VOID,     {new MakeVoid(), {}}},
+                    {E_EXIT,     {new Exit(), {}}},
+                    {E_BOOLQ,    {new IsBoolean(new Var("parm")), {"parm"}}},
+                    {E_INTQ,     {new IsFixnum(new Var("parm")), {"parm"}}},
+                    {E_NULLQ,    {new IsNull(new Var("parm")), {"parm"}}},
+                    {E_PAIRQ,    {new IsPair(new Var("parm")), {"parm"}}},
+                    {E_PROCQ,    {new IsProcedure(new Var("parm")), {"parm"}}},
+                    {E_SYMBOLQ,  {new IsSymbol(new Var("parm")), {"parm"}}},
+                    {E_STRINGQ,  {new IsString(new Var("parm")), {"parm"}}},
+                    {E_DISPLAY,  {new Display(new Var("parm")), {"parm"}}},
+                    {E_PLUS,     {new PlusVar({}),  {}}},
+                    {E_MINUS,    {new MinusVar({}), {}}},
+                    {E_MUL,      {new MultVar({}),  {}}},
+                    {E_DIV,      {new DivVar({}),   {}}},
+                    {E_MODULO,   {new Modulo(new Var("parm1"), new Var("parm2")), {"parm1","parm2"}}},
+                    {E_EXPT,     {new Expt(new Var("parm1"), new Var("parm2")), {"parm1","parm2"}}},
+                    {E_EQQ,      {new EqualVar({}), {}}},
+            };
+
+            auto it = primitive_map.find(primitives[x]);
+            //TOD0:to PASS THE parameters correctly;
+            //COMPLETE THE CODE WITH THE HINT IN IF SENTENCE WITH CORRECT RETURN VALUE
+            if (it != primitive_map.end()) {
+                //TODO
             }
-            std::vector<std::string> parameters_;
-            //TODO: to PASS THE parameters_ correctly;
-            //COMPLETE THE CODE WITH THE HINT
-            return ProcedureV(parameters_, exp, e);
-        } else {
-            throw(RuntimeError("undefined variable"));
-        }
+      }
     }
     return matched_value;
 }
@@ -379,8 +382,11 @@ Value Apply::eval(Assoc &e) {
     
     //TODO: TO COMPLETE THE ARGUMENT PARSER LOGIC
     std::vector<Value> args;
-    if (args.size() != clos_ptr->parameters.size()) {throw RuntimeError("Wrong number of arguments");}
-
+    if (auto varNode = dynamic_cast<Variadic*>(clos_ptr->e.get())) {
+        //TODO
+    }
+    if (args.size() != clos_ptr->parameters.size()) throw RuntimeError("Wrong number of arguments");
+    
     //TODO: TO COMPLETE THE PARAMETERS' ENVIRONMENT LOGIC
     Assoc param_env = ;
 
