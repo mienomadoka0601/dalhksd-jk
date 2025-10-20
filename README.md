@@ -409,7 +409,7 @@ R = 119
   (else        clauses_else))
 ```
 
-在 `cond` 表达式中，`predicates_i` 是按照从上到下的顺序求值，而当 `predicates_i` 为真时，`clause_i` 会被求值并返回。`i` 之后的 `predicates` 和 `clauses` 不会被求值。如果所有的 `predicates_i` 都是假的话，则返回 `cluase_else`。在一个子句中，你可以写数条表达式，而 `clause` 的值是最后一条表达式; 特别地，如果没有匹配的分支，则返回 `VoidV()`；如果对于单条件分支只有条件没有分支 (比如 `(cond (#t))`)，那么返回条件值；
+在 `cond` 表达式中，`predicates_i` 是按照从上到下的顺序求值，而当 `predicates_i` 为真时，`clause_i` 会被求值并返回。`i` 之后的 `predicates` 和 `clauses` 不会被求值。如果所有的 `predicates_i` 都是假的话，则返回 `cluase_else`。在一个子句中，你可以写数条表达式，而 `clause` 的值是最后一条表达式; 特别地，如果没有匹配的分支，则返回 `VoidV()`；如果对于单条件分支只有条件没有分支 (比如 `(cond (#t))`)，那么返回条件值；比如 ` (cond (else 1) (#t 2))` 输出 `1`;
 
 #### `begin` 语句
 
