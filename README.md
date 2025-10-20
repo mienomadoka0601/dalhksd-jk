@@ -174,7 +174,7 @@ R = 119
 ;;1 parameter: (+ x) → x;(* x) → x;(- x) → -x;(/ x) → 1/x
 ;;2 parameter: also right;
 ;;more parameters:
-(+ 2 3 4) ;-> 10
+(+ 2 3 4) ;-> 9
 (- 2 3 4) ;-> -5
 (* 2 3 4) ;-> 24
 (/ 2 3 4) ;-> 1/6
@@ -348,6 +348,8 @@ R = 119
 (not (> 1 2))
 ;;Value: ;;Value: #t
 (not (< 1 2))
+;;Value: #f
+(not 5)
 ;;Value: #f
 (and)
 ;Value: #t
