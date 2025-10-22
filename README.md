@@ -150,7 +150,6 @@ R = 119
 
 类型判断demo:
 
-```
 `(number? expr)`、`(boolean? expr)`、`(null? expr)`、`(pair? expr)`、`(symbol? expr)` 分别表示 `expr` 的值的类型是否为 `Integer`、`Boolean`、`Null`、`Pair`、`Symbol`。它们接受一个任意类型的参数，值为对应的结果，类型为 `Boolean`。
 
 `(eq? expr1 expr2)` 表示检查 `expr1` 与 `expr2` 的值是否相等。该表达式接受两个任意类型的参数，值为对应的结果，类型为 `Boolean`。具体的比较规则：
@@ -186,7 +185,6 @@ scm> (eq? (quote ()) (quote ()))
 #t
 scm> (eq? (quote (1 2 3)) (quote (1 2 3)))
 #f
-```
 ```
 
 #### 基本算术操作
