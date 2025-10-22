@@ -185,6 +185,13 @@ scm> (eq? (quote ()) (quote ()))
 #t
 scm> (eq? (quote (1 2 3)) (quote (1 2 3)))
 #f
+scm> (define str "hello")
+scm> (eq? str str)
+#t
+scm> (eq? "hello" "hello")
+#f
+scm> (eq? 1 1)
+#t
 ```
 
 #### 基本算术操作
