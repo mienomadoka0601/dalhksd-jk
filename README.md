@@ -148,6 +148,47 @@ R = 119
 
 我们已经为你实现了所有的类型处理与类型判断，在 `Subtask 1` 中，你将会接触到 `Integer` 与 `Boolean`.
 
+类型判断demo:
+
+```
+`(number? expr)`、`(boolean? expr)`、`(null? expr)`、`(pair? expr)`、`(symbol? expr)` 分别表示 `expr` 的值的类型是否为 `Integer`、`Boolean`、`Null`、`Pair`、`Symbol`。它们接受一个任意类型的参数，值为对应的结果，类型为 `Boolean`。
+
+`(eq? expr1 expr2)` 表示检查 `expr1` 与 `expr2` 的值是否相等。该表达式接受两个任意类型的参数，值为对应的结果，类型为 `Boolean`。具体的比较规则：
+
+- 若两个参数的类型都为 `Integer`，则比较对应的整数是否相同
+- 若两个参数的类型都为 `Boolean`，则比较对应的布尔值是否相同
+- 若两个参数的类型都为 `Symbol`，则比较对应的字符串是否相同
+- 若两个参数的类型都为 `Null` 或都为 `Void`，则值为 `#t`
+- 否则，比较两个值指向的内存位置是否相同（例如两个 `Pair`，即使它们左右值都相等，但如果内存位置不同，我们也认为两者不同）
+
+我们提供的接口中存的是指向值的指针而非值本身， 你可以通过定义 `Value v` 并使用 `v.get()` 来查看 `v` 指向的内存位置。
+
+样例：
+
+```
+scm> (not #f)
+#t
+scm> (not (void))
+#f
+scm> (pair? (car (cons 1 2)))
+#f
+scm> (symbol? (quote var))
+#t
+scm> (number? (+ 5 1))
+#t
+scm> (null? (quote ()))
+#t
+scm> (eq? 3 (+ 1 2))
+#t
+scm> (eq? #t (= 0 0))
+#t
+scm> (eq? (quote ()) (quote ()))
+#t
+scm> (eq? (quote (1 2 3)) (quote (1 2 3)))
+#f
+```
+```
+
 #### 基本算术操作
 
 在真实的 `Scheme` 中，`+`、`-`、`*` 和 `/` 分别代表加、减、乘、除,而且接受整数和分数的处理,如果传入参数中有分数，那么结果按照最简分数或整数形式表示；例如：
