@@ -464,6 +464,8 @@ scm> (eq? 1 1)
 ```scheme
 (begin 1)
 ;;Value: 1
+(begin (void))
+;;Value: #<void>
 (begin (void) (cons 1 2) #t)
 ;;Value: #t
 ```
