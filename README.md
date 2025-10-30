@@ -440,6 +440,8 @@ scm> (eq? 1 1)
 ;;Value: true-branch
 (if #f (/ 1 0) 'false-branch)
 ;;Value: false-branch
+(if #t (void) 1)
+;;Value: #<void>
 ```
 
 #### `cond` 语句
