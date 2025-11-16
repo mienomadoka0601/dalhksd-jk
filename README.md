@@ -2,7 +2,7 @@
 
 > SJTU CS1958-01 2025Fall 第三次大作业
 
-请先阅读 [解释器简明教程](https://notes.sjtu.edu.cn/s/mAgan6OSB)，有兴趣可以阅读 [为什么 Lisp 语言如此先进？](https://www.ruanyifeng.com/blog/2010/10/why_lisp_is_superior.html):)
+请先阅读 [解释器简明教程](https://notes.sjtu.edu.cn/s/mAgan6OSB)，有兴趣可以阅读 [为什么 Lisp 语言如此先进？](https://www.ruanyifeng.com/blog/2010/10/why_lisp_is_superior.html)
 
 ## 内容概述
 
@@ -83,13 +83,13 @@ src
 具体而言， 评测程序会执行你的解释器并将结果与标准程序的输出进行比对， 要使用评测程序， 在子目录 `score` 下执行以下命令即可
 
 ```
-./score.sh
+c
 ```
 
 若权限不够， 你可以输入下列命令后再执行
 
 ```
-chmod +x score.sh
+c
 ./score.sh
 ```
 
