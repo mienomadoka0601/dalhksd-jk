@@ -77,6 +77,10 @@ Expr List::parse(Assoc &env) {
     string op = id->s;
     if (find(op, env).get() != nullptr) {
         //TODO: TO COMPLETE THE PARAMETER PARSER LOGIC
+        Expr rator=Expr(new Var(op));
+        vector<Expr>args;
+        for(int i=1;i<stxs.size();i++) args.push_back(stxs[i]->parse(env));
+        return Expr(new Apply(rator,args));
     }
     if (primitives.count(op) != 0) {
         vector<Expr> parameters;
