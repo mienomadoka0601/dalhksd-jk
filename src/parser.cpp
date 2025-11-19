@@ -252,13 +252,12 @@ Expr List::parse(Assoc &env) {
 
     if (reserved_words.count(op) != 0) {
         auto rw = reserved_words[op];
-        if (rw == E_QUOTE) {
-            if (stxs.size() < 2) {
-                throw RuntimeError("quote requires one argument");
-            }
-            return Expr(new Quote(stxs[1]));
-        }
         switch (rw) {
+            case E_QUOTE:
+                if (stxs.size() < 2) {
+                    throw RuntimeError("quote requires one argument");
+                }
+                return Expr(new Quote(stxs[1]));
             case E_BEGIN: {
                 vector<Expr> es;
                 for (size_t i = 1; i < stxs.size(); ++i) es.push_back(stxs[i].parse(env));
@@ -294,12 +293,16 @@ Expr List::parse(Assoc &env) {
                     if (!sym) throw RuntimeError("lambda parameters must be symbols");
                     names.push_back(sym->s);
                 }
+                Assoc new_env = env;
+                for (const auto &param : names) {
+                    new_env = extend(param, IntegerV(0), new_env);
+                }
                 if (stxs.size() == 3) {
-                    Expr body = stxs[2].parse(env);
+                    Expr body = stxs[2].parse(new_env);
                     return Expr(new Lambda(names, body));
                 } else {
                     vector<Expr> bodies;
-                    for (size_t i = 2; i < stxs.size(); ++i) bodies.push_back(stxs[i].parse(env));
+                    for (size_t i = 2; i < stxs.size(); ++i) bodies.push_back(stxs[i].parse(new_env));
                     Expr body = Expr(new Begin(bodies));
                     return Expr(new Lambda(names, body));
                 }
@@ -319,13 +322,17 @@ Expr List::parse(Assoc &env) {
                         if (!ps) throw RuntimeError("lambda parameters must be symbols");
                         names.push_back(ps->s);
                     }
+                    Assoc new_env = env;
+                    for (const auto &param : names) {
+                        new_env = extend(param, IntegerV(0), new_env);
+                    }
                     if (stxs.size() == 3) {
-                        Expr body = stxs[2].parse(env);
+                        Expr body = stxs[2].parse(new_env);
                         Expr lambda = Expr(new Lambda(names, body));
                         return Expr(new Define(fname->s, lambda));
                     } else {
                         vector<Expr> bodies;
-                        for (size_t i = 2; i < stxs.size(); ++i) bodies.push_back(stxs[i].parse(env));
+                        for (size_t i = 2; i < stxs.size(); ++i) bodies.push_back(stxs[i].parse(new_env));
                         Expr body = Expr(new Begin(bodies));
                         Expr lambda = Expr(new Lambda(names, body));
                         return Expr(new Define(fname->s, lambda));
@@ -339,6 +346,7 @@ Expr List::parse(Assoc &env) {
                 List *bindlist = dynamic_cast<List*>(stxs[1].get());
                 if (!bindlist) throw RuntimeError("let bindings must be a list");
                 vector<pair<string, Expr>> binds;
+                Assoc new_env=env;
                 for (auto &b : bindlist->stxs) {
                     List *pairlst = dynamic_cast<List*>(b.get());
                     if (!pairlst || pairlst->stxs.size() != 2) throw RuntimeError("each let binding must be a (name expr) pair");
@@ -346,13 +354,14 @@ Expr List::parse(Assoc &env) {
                     if (!name) throw RuntimeError("let binding name must be a symbol");
                     Expr val = pairlst->stxs[1].parse(env);
                     binds.push_back(mp(name->s, val));
+                    new_env = extend(name->s, IntegerV(0), new_env);
                 }
                 if (stxs.size() == 3) {
-                    Expr body = stxs[2].parse(env);
+                    Expr body = stxs[2].parse(new_env);
                     return Expr(new Let(binds, body));
                 } else {
                     vector<Expr> bodies;
-                    for (size_t i = 2; i < stxs.size(); ++i) bodies.push_back(stxs[i].parse(env));
+                    for (size_t i = 2; i < stxs.size(); ++i) bodies.push_back(stxs[i].parse(new_env));
                     Expr body = Expr(new Begin(bodies));
                     return Expr(new Let(binds, body));
                 }
@@ -362,6 +371,7 @@ Expr List::parse(Assoc &env) {
                 List *bindlist = dynamic_cast<List*>(stxs[1].get());
                 if (!bindlist) throw RuntimeError("letrec bindings must be a list");
                 vector<pair<string, Expr>> binds;
+                Assoc new_env=env;
                 for (auto &b : bindlist->stxs) {
                     List *pairlst = dynamic_cast<List*>(b.get());
                     if (!pairlst || pairlst->stxs.size() != 2) throw RuntimeError("each letrec binding must be a (name expr) pair");
@@ -369,13 +379,14 @@ Expr List::parse(Assoc &env) {
                     if (!name) throw RuntimeError("letrec binding name must be a symbol");
                     Expr val = pairlst->stxs[1].parse(env);
                     binds.push_back(mp(name->s, val));
+                    new_env = extend(name->s, IntegerV(0), new_env);
                 }
                 if (stxs.size() == 3) {
-                    Expr body = stxs[2].parse(env);
+                    Expr body = stxs[2].parse(new_env);
                     return Expr(new Letrec(binds, body));
                 } else {
                     vector<Expr> bodies;
-                    for (size_t i = 2; i < stxs.size(); ++i) bodies.push_back(stxs[i].parse(env));
+                    for (size_t i = 2; i < stxs.size(); ++i) bodies.push_back(stxs[i].parse(new_env));
                     Expr body = Expr(new Begin(bodies));
                     return Expr(new Letrec(binds, body));
                 }
@@ -394,5 +405,9 @@ Expr List::parse(Assoc &env) {
 
     //default: use Apply to be an expression
     //TODO: TO COMPLETE THE PARSER LOGIC
+    Expr rator=stxs[0]->parse(env);
+    vector<Expr>args;
+    for(int i=1;i<stxs.size();i++)args.push_back(stxs[i]->parse(env));
+    return Expr(new Apply(rator,args));
 }
 }
