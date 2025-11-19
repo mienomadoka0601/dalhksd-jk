@@ -176,10 +176,11 @@ Value Var::eval(Assoc &e) { // evaluation of variable
                 return ProcedureV(it->second.second, it->second.first,e);
             }
       }
-      return matched_value;
+      throw RuntimeError("Unbound variable: " + x);
+      
 
 }
-    throw RuntimeError("Unbound variable: " + x);
+    return matched_value;
 }
 
 Value Plus::evalRator(const Value &rand1, const Value &rand2) { // +
@@ -814,17 +815,14 @@ Value Apply::eval(Assoc &e) {
     }
 
     Procedure* clos_ptr = dynamic_cast<Procedure*>(procVal.get());
-    if (!clos_ptr) throw RuntimeError("Internal error: procedure value expected");
-
     std::vector<Value> args;
-    args.reserve(this->rand.size());
     for (auto &arg_expr : this->rand) args.push_back(arg_expr->eval(e));
     if (auto varNode = dynamic_cast<Variadic*>(clos_ptr->e.get())) {
         return varNode->evalRator(args);
     }
     if (args.size() != clos_ptr->parameters.size()) throw RuntimeError("Wrong number of arguments");
     Assoc param_env = clos_ptr->env;
-    for (int i = (int)clos_ptr->parameters.size() - 1; i >= 0; --i) {
+    for (size_t i=0;i<args.size();i++) {
         param_env = extend(clos_ptr->parameters[i], args[i], param_env);
     }
     return clos_ptr->e->eval(param_env);

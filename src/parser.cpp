@@ -352,7 +352,7 @@ Expr List::parse(Assoc &env) {
                     if (!pairlst || pairlst->stxs.size() != 2) throw RuntimeError("each let binding must be a (name expr) pair");
                     SymbolSyntax *name = dynamic_cast<SymbolSyntax*>(pairlst->stxs[0].get());
                     if (!name) throw RuntimeError("let binding name must be a symbol");
-                    Expr val = pairlst->stxs[1].parse(env);
+                    Expr val = pairlst->stxs[1].parse(new_env);
                     binds.push_back(mp(name->s, val));
                     new_env = extend(name->s, IntegerV(0), new_env);
                 }
@@ -377,7 +377,7 @@ Expr List::parse(Assoc &env) {
                     if (!pairlst || pairlst->stxs.size() != 2) throw RuntimeError("each letrec binding must be a (name expr) pair");
                     SymbolSyntax *name = dynamic_cast<SymbolSyntax*>(pairlst->stxs[0].get());
                     if (!name) throw RuntimeError("letrec binding name must be a symbol");
-                    Expr val = pairlst->stxs[1].parse(env);
+                    Expr val = pairlst->stxs[1].parse(new_env);
                     binds.push_back(mp(name->s, val));
                     new_env = extend(name->s, IntegerV(0), new_env);
                 }
@@ -407,7 +407,8 @@ Expr List::parse(Assoc &env) {
     //TODO: TO COMPLETE THE PARSER LOGIC
     Expr rator=stxs[0]->parse(env);
     vector<Expr>args;
-    for(int i=1;i<stxs.size();i++)args.push_back(stxs[i]->parse(env));
-    return Expr(new Apply(rator,args));
+        for(int i=1;i<stxs.size();i++)
+            args.push_back(stxs[i]->parse(env));
+        return Expr(new Apply(rator,args));
 }
 }
