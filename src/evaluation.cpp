@@ -152,13 +152,28 @@ Value Var::eval(Assoc &e) { // evaluation of variable
                     {E_MODULO,   {new Modulo(new Var("parm1"), new Var("parm2")), {"parm1","parm2"}}},
                     {E_EXPT,     {new Expt(new Var("parm1"), new Var("parm2")), {"parm1","parm2"}}},
                     {E_EQQ,      {new EqualVar({}), {}}},
+                    {E_EQ,       {new EqualVar({}), {}}},
+                    {E_LT,       {new LessVar({}), {}}},
+                    {E_LE,       {new LessEqVar({}), {}}},
+                    {E_GE,       {new GreaterEqVar({}), {}}},
+                    {E_GT,       {new GreaterVar({}), {}}},
+                    {E_CONS,     {new Cons(new Var("parm1"), new Var("parm2")), {"parm1","parm2"}}},
+                    {E_CAR,      {new Car(new Var("parm")), {"parm"}}},
+                    {E_CDR,      {new Cdr(new Var("parm")), {"parm"}}},
+                    {E_NOT,      {new Not(new Var("parm")), {"parm"}}},
+                    {E_LIST,     {new ListFunc({}), {}}},
+                    {E_LISTQ,    {new IsList(new Var("parm")), {"parm"}}},
+                    {E_SETCAR,   {new SetCar(new Var("parm1"), new Var("parm2")), {"parm1","parm2"}}},
+                    {E_SETCDR,   {new SetCdr(new Var("parm1"), new Var("parm2")), {"parm1","parm2"}}},
+                    {E_AND,      {new AndVar({}), {}}},
+                    {E_OR,       {new OrVar({}), {}}}
             };
 
             auto it = primitive_map.find(primitives[x]);
             //TOD0:to PASS THE parameters correctly;
             //COMPLETE THE CODE WITH THE HINT IN IF SENTENCE WITH CORRECT RETURN VALUE
             if (it != primitive_map.end()) {
-                return ProcedureV(it->second.second, it->second.first, empty());
+                return ProcedureV(it->second.second, it->second.first,e);
             }
       }
       return matched_value;
@@ -716,7 +731,7 @@ Value AndVar::eval(Assoc &e) { // and with short-circuit evaluation
     AndVar *and_ptr = dynamic_cast<AndVar*>(this);
     // empty 'and' is true
     if (and_ptr->rands.empty()) return BooleanV(true);
-    Value last = VoidV();
+    Value last = BooleanV(true);
     for (auto &rand : and_ptr->rands) {
         Value val = rand->eval(e);
         if (val->v_type == V_BOOL) {
@@ -745,7 +760,7 @@ Value OrVar::eval(Assoc &e) { // or with short-circuit evaluation
 }
 
 Value Not::evalRator(const Value &rand) { // not
-    if (rand->v_type != V_BOOL) return BooleanV(true);
+    if (rand->v_type != V_BOOL) return BooleanV(false);
     Boolean *b = dynamic_cast<Boolean*>(rand.get());
     return BooleanV(!b->b);
 }
@@ -840,12 +855,10 @@ Value Let::eval(Assoc &env) {
 
 Value Letrec::eval(Assoc &env) {
     Letrec *lr = dynamic_cast<Letrec*>(this);
-    // create new env with placeholders so recursive refs work
     Assoc new_env = env;
     for (int i = (int)lr->bind.size() - 1; i >= 0; --i) {
         new_env = extend(lr->bind[i].first, VoidV(), new_env);
     }
-    // evaluate each binding in new_env and update
     for (size_t i = 0; i < lr->bind.size(); ++i) {
         Value v = lr->bind[i].second->eval(new_env);
         modify(lr->bind[i].first, v, new_env);
@@ -855,7 +868,6 @@ Value Letrec::eval(Assoc &env) {
 
 Value Set::eval(Assoc &env) {
     Set *s = dynamic_cast<Set*>(this);
-    // ensure variable exists
     Value existing = find(s->var, env);
     if (existing.get() == nullptr) throw RuntimeError("Unbound variable: " + s->var);
     Value v = s->e->eval(env);
