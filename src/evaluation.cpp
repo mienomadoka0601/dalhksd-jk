@@ -104,14 +104,6 @@ Value Var::eval(Assoc &e) { // evaluation of variable
     
     Value matched_value = find(x, e);
     if (matched_value.get() == nullptr) {
-        if (x.empty() || x[0]=='.' || x[0]=='@' || (x[0]>='0' && x[0]<='9')) {
-            throw RuntimeError("Invalid variable name: " + x);
-        }
-    for(int i=0;i<x.size();i++){
-        if(isspace(x[i]) || x[i]=='#' ||x[i]=='"' || x[i]=='`'){
-            throw RuntimeError("Invalid variable name: " + x);
-        }
-    }
         if (primitives.count(x)) {
              static std::map<ExprType, std::pair<Expr, std::vector<std::string>>> primitive_map = {
                     {E_VOID,     {new MakeVoid(), {}}},
@@ -577,7 +569,7 @@ Value GreaterVar::evalRator(const std::vector<Value> &args) { // > with multiple
 
 Value Cons::evalRator(const Value &rand1, const Value &rand2) { // cons
     //TODO: To complete the cons logic
-    return Value(new Pair(rand1, rand2));
+    return PairV(rand1, rand2);
 }
 
 Value ListFunc::evalRator(const std::vector<Value> &args) { // list function
@@ -588,7 +580,11 @@ Value ListFunc::evalRator(const std::vector<Value> &args) { // list function
 
 Value IsList::evalRator(const Value &rand) { // list?
     //TODO: To complete the list? logic
-    return BooleanV(rand->v_type == V_NULL || rand->v_type == V_PAIR);
+    Value temp=rand;
+    while(temp->v_type=V_PAIR){
+        temp=dynamic_cast<Pair*>(temp.get())->cdr;
+    }
+    return BooleanV(rand->v_type == V_NULL);
 }
 
 Value Car::evalRator(const Value &rand) { // car

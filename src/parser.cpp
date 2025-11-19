@@ -94,7 +94,7 @@ Expr List::parse(Assoc &env) {
             if (parameters.size() == 2) {
                 return Expr(new Plus(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for +");
+                return Expr(new PlusVar(parameters));
             }
         } else if (op_type == E_MINUS) {
             //TODO: TO COMPLETE THE LOGIC
@@ -102,7 +102,7 @@ Expr List::parse(Assoc &env) {
                 return Expr(new Minus(parameters[0],parameters[1]));
             }
             else{
-                throw RuntimeError("Wrong number of arguments for -");
+                return Expr(new MinusVar(parameters));
             }
 
         } else if (op_type == E_MUL) {
@@ -111,7 +111,7 @@ Expr List::parse(Assoc &env) {
                 return Expr(new Mult(parameters[0],parameters[1]));
             }
             else{
-                throw RuntimeError("Wrong number of arguments for *");
+                return Expr(new MultVar(parameters));
             }
         }  else if (op_type == E_DIV) {
             //TODO: TO COMPLETE THE LOGIC
@@ -119,7 +119,7 @@ Expr List::parse(Assoc &env) {
                 return Expr(new Div(parameters[0],parameters[1]));
             }
             else{
-                throw RuntimeError("Wrong number of arguments for /");
+                return Expr(new DivVar(parameters));
             }
         } else if (op_type == E_MODULO) {
             if (parameters.size() != 2) {
@@ -129,25 +129,68 @@ Expr List::parse(Assoc &env) {
         } else if (op_type == E_LIST) {
             return Expr(new ListFunc(parameters));
         } else if (op_type == E_LT) {
+            if(parameters.size()<2){
+                throw RuntimeError("Wrong number of arguments for less");
+            }
+            else if(parameters.size()==2){
             return Expr(new Less(parameters[0], parameters[1]));
+            }
+            else{
+                return Expr(new LessVar(parameters));
+            }
             //TODO: TO COMPLETE THE LOGIC
         } else if (op_type == E_LE) {
-            return Expr(new LessEq(parameters[0],parameters[1]));
+            if(parameters.size()<2){
+                throw RuntimeError("Wrong number of arguments for lesseq");
+            }
+            else if(parameters.size()==2){
+            return Expr(new LessEq(parameters[0], parameters[1]));
+            }
+            else{
+            return Expr(new LessEqVar(parameters));
+            }
             //TODO: TO COMPLETE THE LOGIC
         } else if (op_type == E_EQ) {
             //TODO: TO COMPLETE THE LOGIC
-            return Expr(new Equal(parameters[0],parameters[1]));
+            if(parameters.size()<2){
+                throw RuntimeError("Wrong number of arguments for equal");
+            }
+            else if(parameters.size()==2){
+            return Expr(new Equal(parameters[0], parameters[1]));
+            }
+            else{
+            return Expr(new EqualVar(parameters));
+            }
         } else if (op_type == E_GE) {
             //TODO: TO COMPLETE THE LOGIC
-            return Expr(new GreaterEq(parameters[0],parameters[1]));
+            if(parameters.size()<2){
+                throw RuntimeError("Wrong number of arguments for greateq");
+            }
+            else if(parameters.size()==2){
+            return Expr(new GreaterEq(parameters[0], parameters[1]));
+            }
+            else{
+            return Expr(new GreaterEqVar(parameters));
+            }
         } else if (op_type == E_GT) {
             //TODO: TO COMPLETE THE LOGIC
-            return Expr(new Greater(parameters[0],parameters[1]));
+            if(parameters.size()<2){
+                throw RuntimeError("Wrong number of arguments for greater");
+            }
+            else if(parameters.size()==2){
+            return Expr(new Greater(parameters[0], parameters[1]));
+            }
+            else{
+            return Expr(new GreaterVar(parameters));
+            }
         } else if (op_type == E_AND) {
             return Expr(new AndVar(parameters));
         } else if (op_type == E_OR) {
             return Expr(new OrVar(parameters));
-        } else {
+        } else if(op_type==E_NOT){
+            if(parameters.size()!=1) throw RuntimeError("Wrong number of arguments for not");
+            return Expr(new Not(parameters[0]));
+        }else {
             //TODO: TO COMPLETE THE LOGIC
             throw RuntimeError("Unknown primitive operation");
         }
