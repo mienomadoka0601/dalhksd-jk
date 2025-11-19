@@ -21,7 +21,7 @@
 extern std::map<std::string, ExprType> primitives;
 extern std::map<std::string, ExprType> reserved_words;
 
-static Value syntaxToValue(const Syntax &stx) {
+Value syntaxToValue(const Syntax &stx) {
     if (Number *num = dynamic_cast<Number*>(stx.get())) {
         return IntegerV(num->n);
     }
@@ -41,10 +41,39 @@ static Value syntaxToValue(const Syntax &stx) {
         return StringV(str->s);
     }
     if (List *lst = dynamic_cast<List*>(stx.get())) {
+        const auto& stxs=lst->stxs;
         Value result = NullV();
-        for (auto it = lst->stxs.rbegin(); it != lst->stxs.rend(); ++it) {
-            Value v = syntaxToValue(*it);
-            result = PairV(v, result);
+        int dot_pos=-1;
+        for (int i=0;i<stxs.size();++i) {
+            if(auto m=dynamic_cast<SymbolSyntax*>(stxs[i].get())){
+                if (m->s == ".") 
+                    dot_pos = i;
+            }
+        }
+        if(dot_pos!=-1){
+            Value car_list=NullV();
+            for(int i=dot_pos-1;i>=0;i--){
+                car_list=PairV(syntaxToValue(stxs[i]),car_list);
+            }
+            Value cdr=syntaxToValue(stxs[dot_pos+1]);
+            if(car_list->v_type==V_NULL){
+                return cdr;
+            }
+            else{
+                Value current=car_list;
+                while(1){
+                    Pair* pair=dynamic_cast<Pair*>(current.get());
+                    if(pair->cdr->v_type){
+                        pair->cdr=cdr;
+                        break;
+                    }
+                    current=pair->cdr;
+                }
+                return car_list;
+            }
+        }
+        for (int i = stxs.size() - 1; i >= 0; --i) {
+            result = PairV(syntaxToValue(stxs[i]), result);
         }
         return result;
     }
