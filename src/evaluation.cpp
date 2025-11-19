@@ -846,8 +846,8 @@ Value Define::eval(Assoc &env) {
 Value Let::eval(Assoc &env) {
     Let *let_ptr = dynamic_cast<Let*>(this);
     Assoc new_env = env;
-    for (int i = (int)let_ptr->bind.size() - 1; i >= 0; --i) {
-        Value v = let_ptr->bind[i].second->eval(env);
+    for (int i=0;i<let_ptr->bind.size(); ++i) {
+        Value v = let_ptr->bind[i].second->eval(new_env);
         new_env = extend(let_ptr->bind[i].first, v, new_env);
     }
     return let_ptr->body->eval(new_env);
